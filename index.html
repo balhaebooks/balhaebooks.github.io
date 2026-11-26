@@ -580,7 +580,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
 // ===== 책 만들기 / 학원 교재 주문 =====
 (function(){
-  const ENDPOINT = 'https://formsubmit.co/ajax/yangbyoungju@gmail.com';
+  const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxGY2zmhQQlznvBlCwU4O23JxcfbNroiniMPn1KT9kO1dVHU5RQjSb4_F7-FzeQNZzFZw/exec';
   const form = document.getElementById('orderForm'), maker = document.getElementById('maker');
   const panes = [...form.querySelectorAll('.pane')], steps = [...document.querySelectorAll('#stepper div')];
   const prev = document.getElementById('prevBtn'), next = document.getElementById('nextBtn');
@@ -647,11 +647,11 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     if (step < 4) return go(step + 1);
     if (!document.getElementById('f-agree').checked) { hintEl.textContent = '개인정보 수집 · 이용에 동의해 주세요.'; return; }
     const d = new Date(), no = 'BH-' + String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-    const payload = Object.assign({ '접수 번호': no }, data(), { _subject: '[홈페이지 주문] ' + (mode === 'academy' ? '학원 교재 · ' + v('academy') : '책 만들기 · ' + v('title')) + ' (' + no + ')', _template: 'table', _captcha: 'false' });
+    const payload = Object.assign({ '접수 번호': no }, data(), { _subject: '[홈페이지 주문] ' + (mode === 'academy' ? '학원 교재 · ' + v('academy') : '책 만들기 · ' + v('title')) + ' (' + no + ')', _kind: 'order' });
     if (v('email')) payload._replyto = v('email');
     next.disabled = true; next.textContent = '접수 중...'; hintEl.textContent = '';
     try {
-      const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) });
+      const r = await fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(payload), signal: AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || String(j.success) === 'false') throw new Error(j.message || r.status);
       document.getElementById('orderNo').textContent = no; go(5);
@@ -669,11 +669,11 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 // ===== 문의 폼 =====
 document.getElementById('contactForm')?.addEventListener('submit', async e => {
   e.preventDefault(); const f = e.target, btn = f.querySelector('button');
-  const payload = { '문의 유형': f.type.value, '이름 / 기관명': f.name.value, '연락처': f.phone.value, '문의 내용': f.msg.value, _subject: '[홈페이지 문의] ' + f.type.value + ' · ' + f.name.value, _template: 'table', _captcha: 'false' };
+  const payload = { '문의 유형': f.type.value, '이름 / 기관명': f.name.value, '연락처': f.phone.value, '문의 내용': f.msg.value, _subject: '[홈페이지 문의] ' + f.type.value + ' · ' + f.name.value, _kind: 'contact' };
   btn.disabled = true; btn.textContent = '보내는 중...';
   try {
-    const r = await fetch('https://formsubmit.co/ajax/yangbyoungju@gmail.com', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) });
-    if (!r.ok) throw 0; f.reset(); btn.textContent = '접수되었습니다. 곧 연락드릴게요';
+    const r = await fetch('https://script.google.com/macros/s/AKfycbxGY2zmhQQlznvBlCwU4O23JxcfbNroiniMPn1KT9kO1dVHU5RQjSb4_F7-FzeQNZzFZw/exec', { method: 'POST', body: JSON.stringify(payload), signal: AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined });
+    const j = await r.json().catch(() => ({})); if (!r.ok || !j.success) throw 0; f.reset(); btn.textContent = '접수되었습니다. 곧 연락드릴게요';
   } catch (_) {
     location.href = 'mailto:yangbyoungju@gmail.com?subject=' + encodeURIComponent(payload._subject) + '&body=' + encodeURIComponent('이름: ' + payload['이름 / 기관명'] + '\n연락처: ' + payload['연락처'] + '\n\n' + payload['문의 내용']);
     btn.disabled = false; btn.textContent = '보내기';
