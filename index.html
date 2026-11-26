@@ -272,7 +272,7 @@ footer b{color:#fff}
       <a href="#business">사업영역</a>
       <a href="#books">도서</a>
       <a href="#make">책 만들기</a>
-      <a href="#make" data-mode="academy">학원 교재 주문</a>
+      <a href="#academy" data-mode="academy">학원 교재 주문</a>
       <a href="#production">교재 제작</a>
     </nav>
     <a href="#contact" class="cta">문의하기</a>
@@ -596,8 +596,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     update(); if (step === 4) go(4);
   };
   document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
-  document.querySelectorAll('a[data-mode]').forEach(a => a.addEventListener('click', () => setMode(a.dataset.mode)));
-  if (location.hash === '#academy') { setMode('academy'); setTimeout(() => document.getElementById('make').scrollIntoView(), 50); }
+  document.querySelectorAll('a[data-mode]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); setMode(a.dataset.mode); history.replaceState(null, '', '#academy'); document.getElementById('make').scrollIntoView({ behavior: 'smooth' }); }));
 
   const spec = () => {
     const pages = Math.max(0, parseInt(v('pages')) || 0), qty = Math.max(0, parseInt(v('qty')) || 0);
@@ -664,6 +663,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   });
   document.getElementById('againBtn').addEventListener('click', () => { form.reset(); setMode(mode); go(1); });
   update();
+  if (location.hash === '#academy') { setMode('academy'); setTimeout(() => document.getElementById('make').scrollIntoView(), 50); }
 })();
 
 // ===== 문의 폼 =====
